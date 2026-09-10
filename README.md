@@ -10,6 +10,7 @@ Intégration personnalisée pour **Home Assistant**, installable via **HACS**, q
 - 🩺 **Utilité** du médicament (fièvre, douleur, allergie, etc.) et catégorie libre
 - ⚠️ Détection automatique des médicaments **périmés**, **bientôt périmés** ou en **stock bas**
 - 🗓️ Un **calendrier** listant toutes les dates de péremption
+- 🎴 Une **carte de tableau de bord** façon *Grocy* : grille de médicaments avec badges colorés (périmé / bientôt périmé / stock bas), boutons +/- rapides, recherche — installée automatiquement, sans configuration
 - 🔧 Des **services** pour ajouter, mettre à jour, supprimer, consommer ou réapprovisionner un médicament — directement utilisables dans vos automatisations, scripts ou tableaux de bord
 
 ## Installation
@@ -101,7 +102,28 @@ automation:
 
 Vous pouvez aussi réagir aux événements `medicine_cabinet_expired`, `medicine_cabinet_expiring_soon` et `medicine_cabinet_low_stock`, déclenchés dès qu'un médicament change d'état.
 
-## Exemple de tableau de bord
+## Carte de tableau de bord (façon Grocy)
+
+L'intégration embarque sa propre carte Lovelace, **`medicine-cabinet-card`**, installée et chargée automatiquement (aucune ressource à ajouter à la main). Elle affiche vos médicaments sous forme de grille de cartes colorées — nom, catégorie, utilité, quantité avec boutons +/- rapides, date de péremption et statut (OK / bientôt périmé / périmé / stock bas) — avec un champ de recherche, dans le même esprit que la vue « produits » de Grocy.
+
+Ajoutez-la simplement dans l'éditeur de tableau de bord (mode YAML) :
+
+```yaml
+type: custom:medicine-cabinet-card
+title: "Armoire salle de bain"
+```
+
+Options facultatives :
+
+| Option | Description |
+|---|---|
+| `title` | Titre affiché en haut de la carte. |
+| `device_id` | Limite l'affichage à une seule armoire (utile si vous en avez plusieurs) — identifiant visible dans l'URL de la page de l'appareil. |
+| `entities` | Liste explicite d'entités à afficher, si vous préférez composer la sélection vous-même. |
+
+Sans `device_id` ni `entities`, la carte détecte et affiche automatiquement tous les médicaments de toutes vos armoires.
+
+## Exemple de tableau de bord (cartes standard)
 
 ```yaml
 type: entities
@@ -114,7 +136,7 @@ entities:
   - entity: calendar.armoire_salle_de_bain_peremptions
 ```
 
-Pour afficher automatiquement tous les capteurs de médicaments (sans les lister un par un), la carte [auto-entities](https://github.com/thomasloven/lovelace-auto-entities) (installable via HACS) fonctionne bien, en filtrant par appareil sur l'armoire concernée.
+Pour afficher automatiquement tous les capteurs de médicaments avec les cartes standard (sans les lister un par un), la carte [auto-entities](https://github.com/thomasloven/lovelace-auto-entities) (installable via HACS) fonctionne bien, en filtrant par appareil sur l'armoire concernée.
 
 ## Licence
 

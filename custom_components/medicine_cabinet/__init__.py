@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import voluptuous as vol
 
+from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import ServiceValidationError
@@ -34,6 +36,10 @@ from .const import (
 from .coordinator import MedicineCabinetCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+CARD_URL = "/medicine_cabinet_files/medicine-cabinet-card.js"
+CARD_FILENAME = "medicine-cabinet-card.js"
+_FRONTEND_REGISTERED = f"{DOMAIN}_frontend_registered"
 
 ADD_MEDICATION_SCHEMA = vol.Schema(
     {
@@ -94,6 +100,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     _async_register_services(hass)
+    await _async_register_frontend(hass)
 
     return True
 
@@ -119,6 +126,30 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Reload the entry when its options change."""
     await hass.config_entries.async_reload(entry.entry_id)
+
+
+async def _async_register_frontend(hass: HomeAssistant) -> None:
+    """Serve the bundled Lovelace card and auto-inject it on every dashboard.
+
+    Using add_extra_js_url means the card just works after installing the
+    integration: no manual "resources:" entry to add in Lovelace.
+    """
+    if hass.data.get(_FRONTEND_REGISTERED):
+        return
+    hass.data[_FRONTEND_REGISTERED] = True
+
+    card_path = Path(__file__).parent / "www" / CARD_FILENAME
+    try:
+        from homeassistant.components.http import StaticPathConfig
+
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig(CARD_URL, str(card_path), False)]
+        )
+    except ImportError:
+        # Home Assistant < 2024.7 does not have StaticPathConfig yet.
+        hass.http.register_static_path(CARD_URL, str(card_path), cache_headers=False)
+
+    add_extra_js_url(hass, CARD_URL)
 
 
 def _get_coordinator(hass: HomeAssistant, entry_id: str) -> MedicineCabinetCoordinator:
