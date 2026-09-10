@@ -1,0 +1,12 @@
+{
+  "domain": "medicine_cabinet",
+  "name": "Medicine Cabinet",
+  "codeowners": ["@thom69170"],
+  "config_flow": true,
+  "documentation": "https://github.com/thom69170/home-medicine-cabinet-tracking",
+  "issue_tracker": "https://github.com/thom69170/home-medicine-cabinet-tracking/issues",
+  "integration_type": "hub",
+  "iot_class": "calculated",
+  "requirements": [],
+  "version": "1.0.0"
+}
