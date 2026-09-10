@@ -3,6 +3,7 @@
   "name": "Medicine Cabinet",
   "codeowners": ["@thom69170"],
   "config_flow": true,
+  "dependencies": ["http", "frontend"],
   "documentation": "https://github.com/thom69170/home-medicine-cabinet-tracking",
   "issue_tracker": "https://github.com/thom69170/home-medicine-cabinet-tracking/issues",
   "integration_type": "hub",
