@@ -106,6 +106,8 @@ Vous pouvez aussi réagir aux événements `medicine_cabinet_expired`, `medicine
 
 L'intégration embarque sa propre carte Lovelace, **`medicine-cabinet-card`**, installée et chargée automatiquement (aucune ressource à ajouter à la main). Elle affiche vos médicaments sous forme de grille de cartes colorées — nom, catégorie, utilité, quantité avec boutons +/- rapides, date de péremption et statut (OK / bientôt périmé / périmé / stock bas) — avec un champ de recherche, dans le même esprit que la vue « produits » de Grocy.
 
+Le bouton **« + Ajouter un médicament »** en haut de la carte ouvre un formulaire (nom, quantité, unité, date de péremption, utilité, catégorie, quantité minimale, emplacement, notes) qui appelle directement le service `add_medication` — plus besoin de passer par Outils de développement. Si plusieurs armoires sont configurées, un sélecteur d'armoire apparaît automatiquement dans le formulaire.
+
 Ajoutez-la simplement dans l'éditeur de tableau de bord (mode YAML) :
 
 ```yaml

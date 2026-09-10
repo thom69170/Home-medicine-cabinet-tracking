@@ -184,19 +184,167 @@ class MedicineCabinetCard extends HTMLElement {
         </div>
         <div class="search-row">
           <input id="search" type="text" placeholder="Rechercher un médicament..." />
+          <button id="add-btn" class="add-btn">+ Ajouter un médicament</button>
         </div>
         <div class="grid" id="grid"></div>
         <div class="empty" id="empty" hidden>
-          Aucun médicament trouvé. Ajoutez-en un via l'action
-          <code>medicine_cabinet.add_medication</code>.
+          Aucun médicament trouvé. Ajoutez-en un avec le bouton
+          « + Ajouter un médicament » ci-dessus.
         </div>
       </ha-card>
+      <div class="dialog-overlay" id="dialog-overlay" hidden>
+        <div class="dialog" role="dialog" aria-modal="true">
+          <div class="dialog-title">Ajouter un médicament</div>
+          <form id="add-form">
+            <div class="field" id="cabinet-field" hidden>
+              <label for="f-cabinet">Armoire</label>
+              <select id="f-cabinet"></select>
+            </div>
+            <div class="field">
+              <label for="f-name">Nom *</label>
+              <input id="f-name" type="text" required placeholder="Doliprane 500mg" />
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="f-quantity">Quantité *</label>
+                <input id="f-quantity" type="number" min="0" step="any" required value="1" />
+              </div>
+              <div class="field">
+                <label for="f-unit">Unité</label>
+                <input id="f-unit" type="text" placeholder="comprimés" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="f-expiration">Date de péremption</label>
+              <input id="f-expiration" type="date" />
+            </div>
+            <div class="field">
+              <label for="f-purpose">Utilité</label>
+              <input id="f-purpose" type="text" placeholder="Fièvre et douleur" />
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="f-category">Catégorie</label>
+                <input id="f-category" type="text" placeholder="Antidouleur" />
+              </div>
+              <div class="field">
+                <label for="f-minimum">Quantité minimale</label>
+                <input id="f-minimum" type="number" min="0" step="any" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="f-location">Emplacement</label>
+              <input id="f-location" type="text" placeholder="Armoire salle de bain" />
+            </div>
+            <div class="field">
+              <label for="f-notes">Notes</label>
+              <textarea id="f-notes" rows="2"></textarea>
+            </div>
+            <div class="dialog-actions">
+              <button type="button" id="cancel-btn" class="btn secondary">Annuler</button>
+              <button type="submit" class="btn primary">Ajouter</button>
+            </div>
+          </form>
+        </div>
+      </div>
     `;
     this.shadowRoot.getElementById("search").addEventListener("input", (ev) => {
       this._filter = ev.target.value;
       this._renderBody();
     });
+    this.shadowRoot.getElementById("add-btn").addEventListener("click", () =>
+      this._openAddDialog()
+    );
+    this.shadowRoot.getElementById("cancel-btn").addEventListener("click", () =>
+      this._closeAddDialog()
+    );
+    this.shadowRoot.getElementById("dialog-overlay").addEventListener("click", (ev) => {
+      if (ev.target.id === "dialog-overlay") this._closeAddDialog();
+    });
+    this.shadowRoot.getElementById("dialog-overlay").addEventListener("keydown", (ev) => {
+      if (ev.key === "Escape") this._closeAddDialog();
+    });
+    this.shadowRoot.getElementById("add-form").addEventListener("submit", (ev) =>
+      this._handleAddSubmit(ev)
+    );
     this._renderBody();
+  }
+
+  _openAddDialog() {
+    const root = this.shadowRoot;
+    const cabinets = this._cabinets();
+    const cabinetField = root.getElementById("cabinet-field");
+    const cabinetSelect = root.getElementById("f-cabinet");
+
+    cabinetSelect.innerHTML = cabinets
+      .map((c) => `<option value="${c.configEntryId}">${c.name}</option>`)
+      .join("");
+    cabinetField.hidden = cabinets.length <= 1;
+
+    root.getElementById("add-form").reset();
+    root.getElementById("f-quantity").value = "1";
+    root.getElementById("dialog-overlay").hidden = false;
+    root.getElementById("f-name").focus();
+  }
+
+  _closeAddDialog() {
+    this.shadowRoot.getElementById("dialog-overlay").hidden = true;
+  }
+
+  _cabinets() {
+    const hass = this._hass;
+    if (!hass || !hass.devices) return [];
+    return Object.values(hass.devices)
+      .filter((device) =>
+        (device.identifiers || []).some(([domain]) => domain === "medicine_cabinet")
+      )
+      .map((device) => ({
+        name: device.name_by_user || device.name,
+        configEntryId: device.config_entries && device.config_entries[0],
+      }))
+      .filter((cabinet) => cabinet.configEntryId);
+  }
+
+  _handleAddSubmit(ev) {
+    ev.preventDefault();
+    const root = this.shadowRoot;
+    const cabinets = this._cabinets();
+    const cabinetSelect = root.getElementById("f-cabinet");
+    const configEntryId = cabinets.length
+      ? cabinetSelect.value || (cabinets[0] && cabinets[0].configEntryId)
+      : null;
+
+    if (!configEntryId) {
+      alert("Aucune armoire à pharmacie configurée. Ajoutez d'abord l'intégration Medicine Cabinet.");
+      return;
+    }
+
+    const name = root.getElementById("f-name").value.trim();
+    const quantity = root.getElementById("f-quantity").value;
+    if (!name || quantity === "") return;
+
+    const data = {
+      config_entry_id: configEntryId,
+      name,
+      quantity: Number(quantity),
+    };
+    const optionalFields = {
+      unit: "f-unit",
+      expiration_date: "f-expiration",
+      purpose: "f-purpose",
+      category: "f-category",
+      location: "f-location",
+      notes: "f-notes",
+    };
+    for (const [key, id] of Object.entries(optionalFields)) {
+      const value = root.getElementById(id).value.trim();
+      if (value) data[key] = value;
+    }
+    const minimum = root.getElementById("f-minimum").value;
+    if (minimum !== "") data.minimum_quantity = Number(minimum);
+
+    this._callService("medicine_cabinet", "add_medication", data);
+    this._closeAddDialog();
   }
 
   _renderBody() {
@@ -313,9 +461,13 @@ MedicineCabinetCard.styles = `
   }
   .search-row {
     margin-bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   #search {
-    width: 100%;
+    flex: 1 1 160px;
+    min-width: 0;
     box-sizing: border-box;
     padding: 8px 12px;
     border-radius: 8px;
@@ -323,6 +475,104 @@ MedicineCabinetCard.styles = `
     background: var(--card-background-color);
     color: var(--primary-text-color);
     font-size: 0.9rem;
+  }
+  .add-btn {
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    background: var(--primary-color);
+    color: var(--text-primary-color, #fff);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .add-btn:hover {
+    filter: brightness(1.05);
+  }
+  .dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+  .dialog {
+    background: var(--card-background-color, #fff);
+    color: var(--primary-text-color);
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+  .dialog-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .field-row {
+    display: flex;
+    gap: 10px;
+  }
+  .field-row .field {
+    flex: 1;
+    min-width: 0;
+  }
+  .field label {
+    font-size: 0.78rem;
+    color: var(--secondary-text-color);
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--divider-color);
+    background: var(--card-background-color);
+    color: var(--primary-text-color);
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .field textarea {
+    resize: vertical;
+  }
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .btn.secondary {
+    background: var(--secondary-background-color);
+    color: var(--primary-text-color);
+  }
+  .btn.primary {
+    background: var(--primary-color);
+    color: var(--text-primary-color, #fff);
   }
   .grid {
     display: grid;
