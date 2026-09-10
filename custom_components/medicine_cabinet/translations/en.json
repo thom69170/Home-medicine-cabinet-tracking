@@ -1,0 +1,65 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "New medicine cabinet",
+        "description": "Give this medicine cabinet a name (useful if you have several, e.g. one per room).",
+        "data": {
+          "name": "Name"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Please enter a name."
+    },
+    "abort": {
+      "already_configured": "A medicine cabinet with this name already exists."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Medicine cabinet settings",
+        "data": {
+          "expiry_warning_days": "Warn X days before expiration",
+          "low_stock_default": "Default low stock threshold",
+          "notify_expired": "Notify on expired medications",
+          "notify_low_stock": "Notify on low stock"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "total_medications": { "name": "Total medications" },
+      "expired_medications": { "name": "Expired medications" },
+      "expiring_soon_medications": { "name": "Expiring soon" },
+      "low_stock_medications": { "name": "Low stock medications" }
+    },
+    "calendar": {
+      "expiration_calendar": { "name": "Expirations" }
+    }
+  },
+  "services": {
+    "add_medication": {
+      "name": "Add medication",
+      "description": "Adds a medication to a medicine cabinet."
+    },
+    "update_medication": {
+      "name": "Update medication",
+      "description": "Updates an existing medication's information."
+    },
+    "remove_medication": {
+      "name": "Remove medication",
+      "description": "Removes a medication from the cabinet."
+    },
+    "consume": {
+      "name": "Consume / take medication",
+      "description": "Decreases a medication's stock quantity."
+    },
+    "restock": {
+      "name": "Restock",
+      "description": "Increases a medication's stock quantity."
+    }
+  }
+}

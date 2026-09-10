@@ -1,0 +1,65 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Nouvelle armoire à pharmacie",
+        "description": "Donnez un nom à cette armoire à pharmacie (utile si vous en avez plusieurs, par exemple une par pièce).",
+        "data": {
+          "name": "Nom"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Veuillez saisir un nom."
+    },
+    "abort": {
+      "already_configured": "Une armoire à pharmacie porte déjà ce nom."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Paramètres de l'armoire à pharmacie",
+        "data": {
+          "expiry_warning_days": "Alerter X jours avant la péremption",
+          "low_stock_default": "Seuil de stock bas par défaut",
+          "notify_expired": "Notifier les médicaments périmés",
+          "notify_low_stock": "Notifier les stocks bas"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "total_medications": { "name": "Total médicaments" },
+      "expired_medications": { "name": "Médicaments périmés" },
+      "expiring_soon_medications": { "name": "Médicaments bientôt périmés" },
+      "low_stock_medications": { "name": "Médicaments en stock bas" }
+    },
+    "calendar": {
+      "expiration_calendar": { "name": "Péremptions" }
+    }
+  },
+  "services": {
+    "add_medication": {
+      "name": "Ajouter un médicament",
+      "description": "Ajoute un médicament à une armoire à pharmacie."
+    },
+    "update_medication": {
+      "name": "Mettre à jour un médicament",
+      "description": "Met à jour les informations d'un médicament existant."
+    },
+    "remove_medication": {
+      "name": "Supprimer un médicament",
+      "description": "Supprime un médicament de l'armoire à pharmacie."
+    },
+    "consume": {
+      "name": "Consommer / prendre le médicament",
+      "description": "Diminue la quantité en stock d'un médicament."
+    },
+    "restock": {
+      "name": "Réapprovisionner",
+      "description": "Augmente la quantité en stock d'un médicament."
+    }
+  }
+}

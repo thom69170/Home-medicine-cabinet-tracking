@@ -1,0 +1,200 @@
+add_medication:
+  name: Ajouter un médicament
+  description: Ajoute un médicament à une armoire à pharmacie.
+  fields:
+    config_entry_id:
+      name: Armoire à pharmacie
+      description: L'armoire à pharmacie à laquelle ajouter le médicament.
+      required: true
+      selector:
+        config_entry:
+          integration: medicine_cabinet
+    name:
+      name: Nom
+      description: Nom du médicament.
+      required: true
+      example: "Doliprane 500mg"
+      selector:
+        text:
+    quantity:
+      name: Quantité
+      description: Quantité actuelle en stock.
+      required: true
+      example: 12
+      selector:
+        number:
+          min: 0
+          mode: box
+    unit:
+      name: Unité
+      description: Unité de mesure (comprimés, ml, boîtes...).
+      example: "comprimés"
+      selector:
+        text:
+    expiration_date:
+      name: Date de péremption
+      description: Date de péremption du médicament.
+      selector:
+        date:
+    purpose:
+      name: Utilité
+      description: À quoi sert ce médicament (fièvre, douleur, allergie...).
+      example: "Fièvre et douleur"
+      selector:
+        text:
+    category:
+      name: Catégorie
+      description: Catégorie du médicament.
+      example: "Antidouleur"
+      selector:
+        text:
+    minimum_quantity:
+      name: Quantité minimale
+      description: Seuil en dessous duquel le stock est considéré bas.
+      selector:
+        number:
+          min: 0
+          mode: box
+    location:
+      name: Emplacement
+      description: Emplacement de rangement.
+      example: "Armoire salle de bain"
+      selector:
+        text:
+    notes:
+      name: Notes
+      description: Notes libres.
+      selector:
+        text:
+          multiline: true
+
+update_medication:
+  name: Mettre à jour un médicament
+  description: Met à jour les informations d'un médicament existant.
+  fields:
+    config_entry_id:
+      name: Armoire à pharmacie
+      description: L'armoire à pharmacie concernée.
+      required: true
+      selector:
+        config_entry:
+          integration: medicine_cabinet
+    medication_id:
+      name: Identifiant du médicament
+      description: Identifiant interne du médicament (voir l'attribut "id" du capteur).
+      required: true
+      selector:
+        text:
+    name:
+      name: Nom
+      selector:
+        text:
+    quantity:
+      name: Quantité
+      selector:
+        number:
+          min: 0
+          mode: box
+    unit:
+      name: Unité
+      selector:
+        text:
+    expiration_date:
+      name: Date de péremption
+      selector:
+        date:
+    purpose:
+      name: Utilité
+      selector:
+        text:
+    category:
+      name: Catégorie
+      selector:
+        text:
+    minimum_quantity:
+      name: Quantité minimale
+      selector:
+        number:
+          min: 0
+          mode: box
+    location:
+      name: Emplacement
+      selector:
+        text:
+    notes:
+      name: Notes
+      selector:
+        text:
+          multiline: true
+
+remove_medication:
+  name: Supprimer un médicament
+  description: Supprime un médicament de l'armoire à pharmacie.
+  fields:
+    config_entry_id:
+      name: Armoire à pharmacie
+      description: L'armoire à pharmacie concernée.
+      required: true
+      selector:
+        config_entry:
+          integration: medicine_cabinet
+    medication_id:
+      name: Identifiant du médicament
+      description: Identifiant interne du médicament à supprimer.
+      required: true
+      selector:
+        text:
+
+consume:
+  name: Consommer / prendre le médicament
+  description: Diminue la quantité en stock d'un médicament.
+  fields:
+    config_entry_id:
+      name: Armoire à pharmacie
+      description: L'armoire à pharmacie concernée.
+      required: true
+      selector:
+        config_entry:
+          integration: medicine_cabinet
+    medication_id:
+      name: Identifiant du médicament
+      description: Identifiant interne du médicament.
+      required: true
+      selector:
+        text:
+    amount:
+      name: Quantité
+      description: Quantité à retirer du stock.
+      required: true
+      example: 1
+      selector:
+        number:
+          min: 0
+          mode: box
+
+restock:
+  name: Réapprovisionner
+  description: Augmente la quantité en stock d'un médicament.
+  fields:
+    config_entry_id:
+      name: Armoire à pharmacie
+      description: L'armoire à pharmacie concernée.
+      required: true
+      selector:
+        config_entry:
+          integration: medicine_cabinet
+    medication_id:
+      name: Identifiant du médicament
+      description: Identifiant interne du médicament.
+      required: true
+      selector:
+        text:
+    amount:
+      name: Quantité
+      description: Quantité à ajouter au stock.
+      required: true
+      example: 20
+      selector:
+        number:
+          min: 0
+          mode: box
